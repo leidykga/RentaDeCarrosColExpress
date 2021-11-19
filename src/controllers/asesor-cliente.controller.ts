@@ -26,26 +26,26 @@ export class AsesorClienteController {
     @repository(AsesorRepository) protected asesorRepository: AsesorRepository,
   ) { }
 
-  @get('/asesors/{id}/cliente', {
+  @get('/asesors/{id}/clientes', {
     responses: {
       '200': {
-        description: 'Asesor has one Cliente',
+        description: 'Array of Asesor has many Cliente',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Cliente),
+            schema: {type: 'array', items: getModelSchemaRef(Cliente)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Cliente>,
-  ): Promise<Cliente> {
-    return this.asesorRepository.cliente(id).get(filter);
+  ): Promise<Cliente[]> {
+    return this.asesorRepository.clientes(id).find(filter);
   }
 
-  @post('/asesors/{id}/cliente', {
+  @post('/asesors/{id}/clientes', {
     responses: {
       '200': {
         description: 'Asesor model instance',
@@ -67,10 +67,10 @@ export class AsesorClienteController {
       },
     }) cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    return this.asesorRepository.cliente(id).create(cliente);
+    return this.asesorRepository.clientes(id).create(cliente);
   }
 
-  @patch('/asesors/{id}/cliente', {
+  @patch('/asesors/{id}/clientes', {
     responses: {
       '200': {
         description: 'Asesor.Cliente PATCH success count',
@@ -90,10 +90,10 @@ export class AsesorClienteController {
     cliente: Partial<Cliente>,
     @param.query.object('where', getWhereSchemaFor(Cliente)) where?: Where<Cliente>,
   ): Promise<Count> {
-    return this.asesorRepository.cliente(id).patch(cliente, where);
+    return this.asesorRepository.clientes(id).patch(cliente, where);
   }
 
-  @del('/asesors/{id}/cliente', {
+  @del('/asesors/{id}/clientes', {
     responses: {
       '200': {
         description: 'Asesor.Cliente DELETE success count',
@@ -105,6 +105,6 @@ export class AsesorClienteController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Cliente)) where?: Where<Cliente>,
   ): Promise<Count> {
-    return this.asesorRepository.cliente(id).delete(where);
+    return this.asesorRepository.clientes(id).delete(where);
   }
 }

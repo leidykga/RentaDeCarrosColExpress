@@ -26,26 +26,26 @@ export class VehiculoSolicitudController {
     @repository(VehiculoRepository) protected vehiculoRepository: VehiculoRepository,
   ) { }
 
-  @get('/vehiculos/{id}/solicitud', {
+  @get('/vehiculos/{id}/solicituds', {
     responses: {
       '200': {
-        description: 'Vehiculo has one Solicitud',
+        description: 'Array of Vehiculo has many Solicitud',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Solicitud),
+            schema: {type: 'array', items: getModelSchemaRef(Solicitud)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Solicitud>,
-  ): Promise<Solicitud> {
-    return this.vehiculoRepository.solicitud(id).get(filter);
+  ): Promise<Solicitud[]> {
+    return this.vehiculoRepository.solicituds(id).find(filter);
   }
 
-  @post('/vehiculos/{id}/solicitud', {
+  @post('/vehiculos/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Vehiculo model instance',
@@ -67,10 +67,10 @@ export class VehiculoSolicitudController {
       },
     }) solicitud: Omit<Solicitud, 'id'>,
   ): Promise<Solicitud> {
-    return this.vehiculoRepository.solicitud(id).create(solicitud);
+    return this.vehiculoRepository.solicituds(id).create(solicitud);
   }
 
-  @patch('/vehiculos/{id}/solicitud', {
+  @patch('/vehiculos/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Vehiculo.Solicitud PATCH success count',
@@ -90,10 +90,10 @@ export class VehiculoSolicitudController {
     solicitud: Partial<Solicitud>,
     @param.query.object('where', getWhereSchemaFor(Solicitud)) where?: Where<Solicitud>,
   ): Promise<Count> {
-    return this.vehiculoRepository.solicitud(id).patch(solicitud, where);
+    return this.vehiculoRepository.solicituds(id).patch(solicitud, where);
   }
 
-  @del('/vehiculos/{id}/solicitud', {
+  @del('/vehiculos/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Vehiculo.Solicitud DELETE success count',
@@ -105,6 +105,6 @@ export class VehiculoSolicitudController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Solicitud)) where?: Where<Solicitud>,
   ): Promise<Count> {
-    return this.vehiculoRepository.solicitud(id).delete(where);
+    return this.vehiculoRepository.solicituds(id).delete(where);
   }
 }

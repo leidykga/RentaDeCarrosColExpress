@@ -14,3 +14,8 @@ export * from './asesor.controller';
 export * from './administrador.controller';
 export * from './vehiculo.controller';
 export * from './solicitud.controller';
+export * from './cliente.controller';
+export * from './vehiculo.controller';
+export * from './administrador.controller';
+export * from './solicitud.controller';
+export * from './asesor.controller';

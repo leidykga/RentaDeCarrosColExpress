@@ -1,6 +1,6 @@
-import {Entity, hasOne, model, property, hasMany} from '@loopback/repository';
-import {Administrador} from './administrador.model';
+import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository';
 import {Cliente} from './cliente.model';
+import {Administrador} from './administrador.model';
 import {Solicitud} from './solicitud.model';
 
 @model()
@@ -22,13 +22,13 @@ export class Asesor extends Entity {
     type: 'string',
     required: true,
   })
-  id_administrador: string;
+  email: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  email: string;
+  clave: string;
 
   @property({
     type: 'string',
@@ -37,46 +37,19 @@ export class Asesor extends Entity {
   telefono: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  id_cliente: string;
+  estado: number;
 
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_vehiculo: string;
+  @hasMany(() => Cliente)
+  clientes: Cliente[];
 
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_solicitud: string;
-
-  @property({
-    type: 'string',
-  })
-  administradorId?: string;
-
-  @hasOne(() => Administrador)
-  administrador: Administrador;
-
-  @hasOne(() => Cliente)
-  cliente: Cliente;
-
-  @property({
-    type: 'string',
-  })
-  clienteId?: string;
+  @belongsTo(() => Administrador)
+  administradorId: string;
 
   @hasMany(() => Solicitud)
   solicituds: Solicitud[];
-
-  @property({
-    type: 'string',
-  })
-  solicitudId?: string;
 
   constructor(data?: Partial<Asesor>) {
     super(data);
