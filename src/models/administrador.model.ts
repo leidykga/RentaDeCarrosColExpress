@@ -26,6 +26,18 @@ export class Administrador extends Entity {
     type: 'string',
     required: true,
   })
+  email: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  clave: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   id_asesor: string;
 
   @property({

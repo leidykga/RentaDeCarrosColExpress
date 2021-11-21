@@ -52,12 +52,6 @@ export class Solicitud extends Entity {
     type: 'string',
     required: true,
   })
-  tipoVehiculo: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
   tipoSolicitud: string;
 
   @belongsTo(() => Cliente)
