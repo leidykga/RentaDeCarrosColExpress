@@ -1,30 +1,55 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
-import {Administrador} from '../models';
+import {LLaves} from '../config/llaves';
+import {Administrador, Credenciales} from '../models';
 import {AdministradorRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
 
 export class AdministradorController {
   constructor(
     @repository(AdministradorRepository)
-    public administradorRepository : AdministradorRepository,
-  ) {}
+    public administradorRepository: AdministradorRepository,
+    @service(AutenticacionService)
+    public servicioAutentificacion: AutenticacionService
+  ) { }
+  @post("identificaradministrador", {
+    responses: {
+      '200': {
+        description: 'Identificacion de Administradores'
+      }
+    }
+  })
+  async identificaradministrador(
+    @requestBody() credenciales: Credenciales
+  ) {
+    let p = await this.servicioAutentificacion.autentificarAdministrador(credenciales.usuario, credenciales.clave);
+    if (p) {
+      let token = this.servicioAutentificacion.GenerarTokenJWT(p);
+      return {
+        datos: {
+          nombre: p.nombre,
+          email: p.email,
+          id: p.id
+        },
+        tk: token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos invalidos");
+    }
+  }
 
   @post('/administradors')
   @response(200, {
@@ -44,7 +69,19 @@ export class AdministradorController {
     })
     administrador: Omit<Administrador, 'id'>,
   ): Promise<Administrador> {
-    return this.administradorRepository.create(administrador);
+    let clave = this.servicioAutentificacion.GenerarClave();
+    let clavecifrada = this.servicioAutentificacion.Cifrarclave(clave);
+    administrador.clave = clavecifrada;
+    let p = await this.administradorRepository.create(administrador);
+    //notificar al usuario
+    let destino = administrador.email;
+    let asunto = 'Registro en la plataforma';
+    let contenido = `Hola ${administrador.nombre}, Tu registro como administrador de plataforma esta listo, su usuario es ${administrador.email}, y su contraseña es ${clave}`
+    fetch(`${LLaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+      .then((data: any) => {
+        console.log(data)
+      })
+    return p
   }
 
   @get('/administradors/count')
