@@ -26,26 +26,26 @@ export class ClienteSolicitudController {
     @repository(ClienteRepository) protected clienteRepository: ClienteRepository,
   ) { }
 
-  @get('/clientes/{id}/solicitud', {
+  @get('/clientes/{id}/solicituds', {
     responses: {
       '200': {
-        description: 'Cliente has one Solicitud',
+        description: 'Array of Cliente has many Solicitud',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Solicitud),
+            schema: {type: 'array', items: getModelSchemaRef(Solicitud)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Solicitud>,
-  ): Promise<Solicitud> {
-    return this.clienteRepository.solicitud(id).get(filter);
+  ): Promise<Solicitud[]> {
+    return this.clienteRepository.solicituds(id).find(filter);
   }
 
-  @post('/clientes/{id}/solicitud', {
+  @post('/clientes/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Cliente model instance',
@@ -67,10 +67,10 @@ export class ClienteSolicitudController {
       },
     }) solicitud: Omit<Solicitud, 'id'>,
   ): Promise<Solicitud> {
-    return this.clienteRepository.solicitud(id).create(solicitud);
+    return this.clienteRepository.solicituds(id).create(solicitud);
   }
 
-  @patch('/clientes/{id}/solicitud', {
+  @patch('/clientes/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Cliente.Solicitud PATCH success count',
@@ -90,10 +90,10 @@ export class ClienteSolicitudController {
     solicitud: Partial<Solicitud>,
     @param.query.object('where', getWhereSchemaFor(Solicitud)) where?: Where<Solicitud>,
   ): Promise<Count> {
-    return this.clienteRepository.solicitud(id).patch(solicitud, where);
+    return this.clienteRepository.solicituds(id).patch(solicitud, where);
   }
 
-  @del('/clientes/{id}/solicitud', {
+  @del('/clientes/{id}/solicituds', {
     responses: {
       '200': {
         description: 'Cliente.Solicitud DELETE success count',
@@ -105,6 +105,6 @@ export class ClienteSolicitudController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Solicitud)) where?: Where<Solicitud>,
   ): Promise<Count> {
-    return this.clienteRepository.solicitud(id).delete(where);
+    return this.clienteRepository.solicituds(id).delete(where);
   }
 }

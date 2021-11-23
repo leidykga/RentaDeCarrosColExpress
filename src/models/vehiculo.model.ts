@@ -1,4 +1,4 @@
-import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Solicitud} from './solicitud.model';
 
 @model()
@@ -14,19 +14,25 @@ export class Vehiculo extends Entity {
     type: 'string',
     required: true,
   })
-  tipoVehiculo: string;
+  tipo: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  departamento_ciudad: string;
+  departamento: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  estado: string;
+  ciudad: string;
+
+  @property({
+    type: 'number',
+    required: true,
+  })
+  estado: number;
 
   @property({
     type: 'string',
@@ -36,11 +42,24 @@ export class Vehiculo extends Entity {
 
   @property({
     type: 'string',
+    required: true,
   })
-  solicitudId?: string;
+  placa: string;
 
-  @hasOne(() => Solicitud)
-  solicitud: Solicitud;
+  @property({
+    type: 'string',
+    required: true,
+  })
+  color: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  modelo: string;
+
+  @hasMany(() => Solicitud)
+  solicituds: Solicitud[];
 
   constructor(data?: Partial<Vehiculo>) {
     super(data);
