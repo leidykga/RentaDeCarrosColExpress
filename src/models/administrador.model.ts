@@ -30,7 +30,7 @@ export class Administrador extends Entity {
 
   @property({
     type: 'string',
-    required: true,
+    required: false,
   })
   clave: string;
 
@@ -38,33 +38,10 @@ export class Administrador extends Entity {
     type: 'string',
     required: true,
   })
-  id_asesor: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_solicitud: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_vehiculo: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_cliente: string;
+  telefono: string;
 
   @hasMany(() => Asesor)
   asesors: Asesor[];
-
-  @property({
-    type: 'string',
-  })
-  asesorId?: string;
 
   constructor(data?: Partial<Administrador>) {
     super(data);

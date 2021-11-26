@@ -1,5 +1,4 @@
-import {Entity, hasOne, model, property} from '@loopback/repository';
-import {Asesor} from './asesor.model';
+import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Solicitud} from './solicitud.model';
 
 @model()
@@ -21,7 +20,7 @@ export class Cliente extends Entity {
     type: 'string',
     required: true,
   })
-  id_cliente: string;
+  documento: string;
 
   @property({
     type: 'string',
@@ -41,28 +40,8 @@ export class Cliente extends Entity {
   })
   telefono: string;
 
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_asesor: string;
-
-  @property({
-    type: 'string',
-    required: true,
-  })
-  id_solicitud: string;
-
-  @hasOne(() => Solicitud)
-  solicitud: Solicitud;
-
-  @property({
-    type: 'string',
-  })
-  asesorId?: string;
-
-  @hasOne(() => Asesor)
-  asesor: Asesor;
+  @hasMany(() => Solicitud)
+  solicituds: Solicitud[];
 
   constructor(data?: Partial<Cliente>) {
     super(data);
