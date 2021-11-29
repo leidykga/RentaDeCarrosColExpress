@@ -1,29 +1,30 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
+import {LLaves} from '../config/llaves';
 import {Cliente} from '../models';
 import {ClienteRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
+
 
 export class ClienteController {
   constructor(
     @repository(ClienteRepository)
     public clienteRepository : ClienteRepository,
+    @service(AutenticacionService)
+    public  servicioautenticacion: AutenticacionService
   ) {}
 
   @post('/clientes')
@@ -44,7 +45,24 @@ export class ClienteController {
     })
     cliente: Omit<Cliente, 'id'>,
   ): Promise<Cliente> {
-    return this.clienteRepository.create(cliente);
+
+    let clave = this.servicioautenticacion.GenerarClave();
+    let clavecifrada = this.servicioautenticacion.Cifrarclave(clave);
+    cliente.clave = clavecifrada;
+    let p = await this.clienteRepository.create(cliente);
+    //Notificar al cliente//
+    let destino = cliente.email;
+    let asunto = 'Registro a la plataforma'
+    let contenido =  `Hola ${cliente.nombre}, su nombre de usuario es: ${cliente.email} y su contraseña es: ${clave}.`;
+    fetch(`${LLaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+    .then((data:any) => {
+      console.log(data);
+    })
+    return p;
+
+
+
+
   }
 
   @get('/clientes/count')
