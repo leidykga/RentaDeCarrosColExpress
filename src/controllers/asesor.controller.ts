@@ -1,4 +1,5 @@
 import {authenticate} from '@loopback/authentication';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -12,13 +13,18 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {LLaves} from '../config/llaves';
 import {Asesor} from '../models';
 import {AsesorRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+
 
 export class AsesorController {
   constructor(
     @repository(AsesorRepository)
     public asesorRepository: AsesorRepository,
+    @service(AutenticacionService)
+    public servicioautentificacion: AutenticacionService,
   ) { }
 
   @authenticate("admin")
@@ -40,7 +46,21 @@ export class AsesorController {
     })
     asesor: Omit<Asesor, 'id'>,
   ): Promise<Asesor> {
-    return this.asesorRepository.create(asesor);
+    let clave = this.servicioautentificacion.GenerarClave();
+    let clavecifrada = this.servicioautentificacion.Cifrarclave(clave);
+    asesor.clave = clavecifrada;
+    let p = await this.asesorRepository.create(asesor);
+
+    //NOTIFICAR EL ASESOR//
+    let destino = asesor.email;
+    let asunto = 'Registro en la plataforma'
+    let contenido = `Hola ${asesor.nombre}, su nombre de asesor es: ${asesor.email} y su contraseña es: ${clave}.`;
+    fetch(`${LLaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+    .then((data:any) => {
+      console.log(data)
+    } )
+
+    return p;
   }
 
   @get('/asesors/count')

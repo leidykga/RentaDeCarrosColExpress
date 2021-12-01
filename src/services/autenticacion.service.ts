@@ -36,6 +36,7 @@ export class AutenticacionService {
 
     }
   }
+
   GenerarTokenJWT(administrador: Administrador) {
     let token = jwt.sign({
       data: {
@@ -48,6 +49,7 @@ export class AutenticacionService {
       LLaves.claveJwT);
     return token;
   }
+
   validarTokenJWT(token: string) {
     try {
       let datos = jwt.verify(token, LLaves.claveJwT);
@@ -56,4 +58,5 @@ export class AutenticacionService {
       return false;
     }
   }
+
 }
