@@ -10,13 +10,14 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
 import {LLaves} from '../config/llaves';
-import {Asesor} from '../models';
+import {Asesor, Credenciales} from '../models';
 import {AsesorRepository} from '../repositories';
 import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
 
 
 export class AsesorController {
@@ -26,6 +27,32 @@ export class AsesorController {
     @service(AutenticacionService)
     public servicioautentificacion: AutenticacionService,
   ) { }
+  //identificar asesor
+  @post("identificarasesor", {
+    responses: {
+      '200': {
+        description: 'Identificacion de Asesores'
+      }
+    }
+  })
+  async identificarasesor(
+    @requestBody() credenciales: Credenciales
+  ) {
+    let p = await this.servicioautentificacion.autentificarAsesor(credenciales.usuario, credenciales.clave);
+    if (p) {
+      let token = this.servicioautentificacion.GenerarTokenAsesorJWT(p);
+      return {
+        datos: {
+          nombre: p.nombre,
+          email: p.email,
+          id: p.id
+        },
+        tk: token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos invalidos");
+    }
+  }
 
   @authenticate("admin")
   @post('/asesors')
@@ -54,11 +81,11 @@ export class AsesorController {
     //NOTIFICAR EL ASESOR//
     let destino = asesor.email;
     let asunto = 'Registro en la plataforma'
-    let contenido = `Hola ${asesor.nombre}, su nombre de asesor es: ${asesor.email} y su contraseña es: ${clave}.`;
+    let contenido = `Hola ${asesor.nombre}, Tu registro como asesor de plataforma esta listo, su usuario es ${asesor.email}, y su contraseña es ${clave}`
     fetch(`${LLaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
-    .then((data:any) => {
-      console.log(data)
-    } )
+      .then((data: any) => {
+        console.log(data)
+      })
 
     return p;
   }
