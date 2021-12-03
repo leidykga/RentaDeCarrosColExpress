@@ -9,11 +9,11 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
 import {LLaves} from '../config/llaves';
-import {Cliente} from '../models';
+import {Cliente, Credenciales} from '../models';
 import {ClienteRepository} from '../repositories';
 import {AutenticacionService} from '../services';
 const fetch = require('node-fetch');
@@ -22,10 +22,36 @@ const fetch = require('node-fetch');
 export class ClienteController {
   constructor(
     @repository(ClienteRepository)
-    public clienteRepository : ClienteRepository,
+    public clienteRepository: ClienteRepository,
     @service(AutenticacionService)
-    public  servicioautenticacion: AutenticacionService
-  ) {}
+    public servicioautenticacion: AutenticacionService
+  ) { }
+  //identificar cliente
+  @post("identificarcliente", {
+    responses: {
+      '200': {
+        description: 'Identificacion de clientes'
+      }
+    }
+  })
+  async identificaracliente(
+    @requestBody() credenciales: Credenciales
+  ) {
+    let p = await this.servicioautenticacion.autentificarCliente(credenciales.usuario, credenciales.clave);
+    if (p) {
+      let token = this.servicioautenticacion.GenerarTokenClienteJWT(p);
+      return {
+        datos: {
+          nombre: p.nombre,
+          email: p.email,
+          id: p.id
+        },
+        tk: token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos invalidos");
+    }
+  }
 
   @post('/clientes')
   @response(200, {
@@ -53,11 +79,11 @@ export class ClienteController {
     //Notificar al cliente//
     let destino = cliente.email;
     let asunto = 'Registro a la plataforma'
-    let contenido =  `Hola ${cliente.nombre}, su nombre de usuario es: ${cliente.email} y su contraseña es: ${clave}.`;
+    let contenido = `Hola ${cliente.nombre}, su nombre de usuario es: ${cliente.email} y su contraseña es: ${clave}`
     fetch(`${LLaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
-    .then((data:any) => {
-      console.log(data);
-    })
+      .then((data: any) => {
+        console.log(data);
+      })
     return p;
 
 
